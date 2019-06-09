@@ -1,0 +1,78 @@
+---
+title: "Pooling Baseball"
+output: html_document
+---
+
+
+```{stan output.var=pooledBattingAverage}
+functions {
+  
+}
+
+data { 
+  int<lower=0> numberOfPlayers_N;           // items, usually N
+  int<lower=0> atBatsPerPlayer_K[numberOfPlayers_N];        // initial trials, sometimes K
+  int<lower=0> hitsPerPlayer_y[numberOfPlayers_N];        // initial successes, usually y
+} 
+
+transformed data { //suggested best practice, verify you are getting the data you think you are
+  print("numberOfPlayers_N: ",numberOfPlayers_N);
+  print("atBatsPerPlayer_K: ",atBatsPerPlayer_K);
+  print("hitsPerPlayer_y: ",hitsPerPlayer_y);
+} 
+
+parameters { 
+  real<lower=0, upper=1> battingAverageAllPlayers_phi;  // chance of success (pooled) 
+} 
+
+model { 
+ hitsPerPlayer_y ~ binomial(atBatsPerPlayer_K, battingAverageAllPlayers_phi);  // likelihood 
+}
+
+generated quantities { 
+} 
+
+```
+
+
+```{r setup, include=TRUE, echo=FALSE}
+library(rstan);
+#df <- read.csv("Clemente.txt", sep="\t");
+
+dataframe <- read.csv("EfronMorrisBB.txt", sep="\t");
+dataframe <- with(dataframe, data.frame(FirstName, LastName, 
+                          Hits, At.Bats, 
+                          RemainingAt.Bats,
+                          RemainingHits = SeasonHits - Hits));
+
+
+print(dataframe);
+
+
+numberOfPlayers_N <- dim(dataframe)[1]
+atBatsPerPlayer_K <- dataframe$At.Bats
+hitsPerPlayer_y <- dataframe$Hits
+
+
+
+
+
+M <- 10000;
+
+
+fit_pool <-
+  sampling(pooledBattingAverage,data=c("numberOfPlayers_N", "atBatsPerPlayer_K", "hitsPerPlayer_y"),iter=(M/2), chains=4)
+
+print(fit_pool, c("battingAverageAllPlayers_phi"), probs=c(0.1, 0.5, 0.9));
+
+
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
