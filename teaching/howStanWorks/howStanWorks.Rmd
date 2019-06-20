@@ -1,0 +1,174 @@
+---
+title: "howStanWorks"
+output: html_document
+---
+
+```{stan output.var=helloWorld.stan}
+functions {
+  void helloWorld() {
+    print("hello world! from a function in the functions block");
+  }
+}
+
+data { 
+  
+}
+
+transformed data { 
+  helloWorld();
+ 
+} 
+parameters { 
+   
+}
+transformed parameters { 
+  helloWorld();
+ 
+} 
+
+model { 
+  print("Hello from the model block");
+}
+
+generated quantities { 
+  print("Hello from the generated quantities block");
+  // print("generated quantities being called");
+} 
+
+```
+
+
+```{r}
+library(rstan)
+fit <-
+  sampling(helloWorld.stan, algorithm = "Fixed_param",     iter=2,warmup=2)
+```
+
+
+# Metropolis/Hastings
+
+<need to describe>===map to baseball problem? 
+
+```{r}
+samples = array(500) #numeric(500) # 500 samples.
+samples[1]=110 # The initial guess
+for (i in 2:500)
+{
+  target = 0.0
+  proposal = samples[i-1] + rnorm (1, 0, 5) # Proposal value
+  if ((dnorm (proposal, 100, 15) / dnorm (samples[i-1], 100, 15)) > runif (1))
+    samples[i] = proposal # Accept proposal
+  else (samples[i] = samples[i-1]) # Reject proposal
+}
+
+hist(samples)
+```
+
+# A deconstructed Stan program
+
+```{stan output.var=pooledBattingAverage.stan}
+
+data { 
+  int<lower=0> numberOfPlayers_N;           // items, usually N
+  int<lower=0> atBatsPerPlayer_K[numberOfPlayers_N];        // initial trials, sometimes K
+  int<lower=0> hitsPerPlayer_y[numberOfPlayers_N];        // initial successes, usually y
+} 
+
+transformed data { //suggested best practice, verify you are getting the data you think you are
+  print("numberOfPlayers_N: ",numberOfPlayers_N);
+  print("atBatsPerPlayer_K: ",atBatsPerPlayer_K);
+  print("hitsPerPlayer_y: ",hitsPerPlayer_y);
+} 
+
+parameters { 
+  real<lower=0, upper=1> battingAverageAllPlayers_phi;  // chance of success (pooled) 
+} 
+
+model { 
+ hitsPerPlayer_y ~ binomial(atBatsPerPlayer_K, battingAverageAllPlayers_phi);  // likelihood
+}
+
+
+
+
+```
+
+
+
+```{stan output.var=pooledDeconstructed.stan}
+
+functions {
+  
+real logProbOfBattingAverageGivenHitsAndAtBats(int hits, int atBats, real battingAverage) {
+  real returnValue = 0.0;
+  returnValue += lgamma(atBats +1) ;
+  returnValue -= lgamma(hits + 1);
+  returnValue -= lgamma(atBats - hits + 1);
+  returnValue += hits*log(battingAverage);
+  returnValue += (atBats - hits) * log(1-battingAverage);
+  return returnValue;
+}
+
+  //overflows badly
+  real probOfBattingAverageGivenHitsAndAtBats(int hits, int atBats, real battingAverage) {
+    real average;
+    int waysOfGettingHits;
+    real probOfBattingAverage;
+    waysOfGettingHits = choose(atBats,hits);
+    print("choose " , waysOfGettingHits);
+    probOfBattingAverage = battingAverage^hits*(1-battingAverage)^(atBats-hits);
+    print("5ProbOfBattingAverage", probOfBattingAverage);
+    return waysOfGettingHits * probOfBattingAverage;
+    
+  }
+
+}
+data { 
+  int<lower=0> N;           // items 
+  int<lower=0> K[N];        // initial trials 
+  int<lower=0> y[N];        // initial successes 
+  
+} 
+
+transformed data { 
+} 
+
+parameters { 
+  real<lower=0, upper=1> phi;  // chance of success (pooled) 
+   real<lower=0, upper=1> ba; 
+} 
+
+model { 
+  real foo;
+ // print("the model being called");
+  // y ~ binomial(K, phi);  // likelihood 
+ // target += binomial_lpmf(y|K, phi); - constant
+ 
+ // print("target initial ", exp(target());
+  
+for (n in 1:N)  {
+   // y[n] ~ binomial(K[n], phi);
+   print("target before ", target());
+   print("binomial_lpmf ", binomial_lpmf(y[n]|K[n], phi));
+   print("logProbOfBattingAverageGivenHitsAndAtBats", logProbOfBattingAverageGivenHitsAndAtBats(y[n],K[n],phi));
+   print("exp(logProbOfBattingAverageGivenHitsAndAtBats)", exp(logProbOfBattingAverageGivenHitsAndAtBats(y[n],K[n],phi)));
+   
+ // target += binomial_lpmf(y[n]|K[n], phi);
+   target += logProbOfBattingAverageGivenHitsAndAtBats(y[n],K[n],phi);
+  //battingAverage = y[n]/K[n];
+
+   //target += battingAverage;
+  // foo = probOfBattingAverageGivenHitsAndAtBats(y[n],K[n],phi);
+
+   print(" after ",target());
+}
+} 
+
+generated quantities { 
+} 
+
+
+
+
+```
+

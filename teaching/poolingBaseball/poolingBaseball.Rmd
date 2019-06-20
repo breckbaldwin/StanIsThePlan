@@ -3,6 +3,7 @@ title: "Pooling Baseball"
 output: html_document
 ---
 
+## Stan model to compute batting average over all players as a group, e.g., completely pooled together. 
 
 ```{stan output.var=pooledBattingAverage}
 functions {
@@ -23,10 +24,33 @@ transformed data { //suggested best practice, verify you are getting the data yo
 
 parameters { 
   real<lower=0, upper=1> battingAverageAllPlayers_phi;  // chance of success (pooled) 
+  //real<lower=0, upper=1> battingAverageOnePlayer;
 } 
 
 model { 
- hitsPerPlayer_y ~ binomial(atBatsPerPlayer_K, battingAverageAllPlayers_phi);  // likelihood 
+// hitsPerPlayer_y ~ binomial(atBatsPerPlayer_K, battingAverageAllPlayers_phi);  // likelihood
+ for(i in 1:numberOfPlayers_N) {
+  int atBats = atBatsPerPlayer_K[i];
+  int hits = hitsPerPlayer_y[i];
+  for(j in 1:atBats) {
+    print("target--log ",target());
+    print("target--base10 ",exp(target()));
+    print("");
+    print("battingAverageAllPlayers_phi ",battingAverageAllPlayers_phi);
+    if (j <= hits) {
+      print("hit");
+      //target += bernoulli_lpmf(1|battingAverageAllPlayers_phi);
+      target += log(battingAverageAllPlayers_phi);
+      //target += battingAverageAllPlayers_phi;
+    }
+    else {
+      print("out");
+      //target += bernoulli_lpmf(0|battingAverageAllPlayers_phi);
+      target += log(1-battingAverageAllPlayers_phi);
+      //target += 1-battingAverageAllPlayers_phi;
+    }
+ }
+}
 }
 
 generated quantities { 
@@ -34,7 +58,7 @@ generated quantities {
 
 ```
 
-
+R program that reads data, runs Stan program above and prints out the results. 
 ```{r setup, include=TRUE, echo=FALSE}
 library(rstan);
 #df <- read.csv("Clemente.txt", sep="\t");
@@ -54,22 +78,22 @@ atBatsPerPlayer_K <- dataframe$At.Bats
 hitsPerPlayer_y <- dataframe$Hits
 
 
-
-
-
-M <- 10000;
+M <- 20;
 
 
 fit_pool <-
-  sampling(pooledBattingAverage,data=c("numberOfPlayers_N", "atBatsPerPlayer_K", "hitsPerPlayer_y"),iter=(M/2), chains=4)
+  sampling(pooledBattingAverage,data=c("numberOfPlayers_N", "atBatsPerPlayer_K", "hitsPerPlayer_y"),iter=(M), chains=1, warmup=10)
 
 print(fit_pool, c("battingAverageAllPlayers_phi"), probs=c(0.1, 0.5, 0.9));
 
+```
 
+## Prediction
+
+```{r}
 
 ```
 
-## R Markdown
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
