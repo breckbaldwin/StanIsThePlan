@@ -4,6 +4,15 @@ output: html_document
 ---
 
 ```{stan output.var=helloWorld.stan}
+
+/*
+Print Frequency
+Printing for a print statement happens every time it is executed. The transformed
+data block is executed once per chain, the transformed parameter and model blocks
+once per leapfrog step, and the generated quantities block once per iteration
+
+See p84 of https://mc-stan.org/docs/2_19/reference-manual-2_19.pdf for documentation of blocks. Lots of info there.
+*/
 functions {
   void helloWorld() {
     print("hello world! from a function in the functions block");
@@ -34,6 +43,10 @@ generated quantities {
   print("Hello from the generated quantities block");
   // print("generated quantities being called");
 } 
+
+
+
+
 
 ```
 
