@@ -5,49 +5,120 @@ output: html_document
 
 ## Stan model to compute batting average over all players as a group, e.g., completely pooled together. 
 
+
+```{stan output.var=simpleStanBatting}
+data { 
+  int N_at_bats;           
+  int y_hit1_out0[N_at_bats];
+} 
+
+parameters { 
+  real phi_probabilityOfHit;  
+} 
+
+model { 
+ y_hit1_out0 ~ bernoulli(phi_probabilityOfHit);  
+}
+
+```
+
+```{r setup, include=TRUE, echo=FALSE}
+library(rstan);
+
+number_hits <- 10
+number_outs <- 40
+y_hit1_out0 <- c(rep(1,number_hits),rep(0,number_outs))
+N_at_bats <- length(y_hit1_out0)
+
+M_iterations <- 10000;
+
+fit <-
+  sampling(simpleStanBatting,data=c("y_hit1_out0", "N_at_bats"),iter=(M_iterations), chains=1)
+
+print(fit, c("phi_probabilityOfHit"), probs=c(0.1, 0.5, 0.9));
+
+```
+
+```{stan output.var=simple1}
+//Can we configure sample size, num threads etc... from inside Stan program? 
+
+parameters { 
+  real<lower=0, upper=1> phi_probabilityOfHit;  
+} 
+
+model { 
+ 1 ~ bernoulli(phi_probabilityOfHit);  
+ 0 ~ bernoulli(phi_probabilityOfHit);  
+ 0 ~ bernoulli(phi_probabilityOfHit);  
+ 0 ~ bernoulli(phi_probabilityOfHit);  
+ 0 ~ bernoulli(phi_probabilityOfHit);  
+}
+```
+
+sdfgs
+
+```{r setup, include=TRUE, echo=FALSE}
+library(rstan);
+
+fit <-
+  sampling(simple1)
+
+print(fit, c("phi_probabilityOfHit"), probs=c(0.1, 0.5, 0.9));
+
+```
+
+adsfasf
+
+
+
+
 ```{stan output.var=pooledBattingAverage}
 functions {
   
 }
 
 data { 
-  int<lower=0> numberOfPlayers_N;           // items, usually N
-  int<lower=0> atBatsPerPlayer_K[numberOfPlayers_N];        // initial trials, sometimes K
-  int<lower=0> hitsPerPlayer_y[numberOfPlayers_N];        // initial successes, usually y
+  int<lower=0> N_numberOfPlayers;           // items, usually N
+  int<lower=0> K_atBatsPerPlayer[N_numberOfPlayers];        // initial trials, sometimes K
+  int<lower=0> y_hitsPerPlayer[N_numberOfPlayers];        // initial successes, usually y
 } 
 
 transformed data { //suggested best practice, verify you are getting the data you think you are
-  print("numberOfPlayers_N: ",numberOfPlayers_N);
-  print("atBatsPerPlayer_K: ",atBatsPerPlayer_K);
-  print("hitsPerPlayer_y: ",hitsPerPlayer_y);
+  print("N_numberOfPlayers: ",N_numberOfPlayers);
+  print("K_atBatsPerPlayer: ",K_atBatsPerPlayer);
+  print("y_hitsPerPlayer: ",y_hitsPerPlayer);
 } 
 
 parameters { 
-  real<lower=0, upper=1> battingAverageAllPlayers_phi;  // chance of success (pooled) 
+  real<lower=0, upper=1> phi_battingAverageAllPlayers;  // chance of success (pooled) 
   //real<lower=0, upper=1> battingAverageOnePlayer;
 } 
 
 model { 
-// hitsPerPlayer_y ~ binomial(atBatsPerPlayer_K, battingAverageAllPlayers_phi);  // likelihood
- for(i in 1:numberOfPlayers_N) {
-  int atBats = atBatsPerPlayer_K[i];
-  int hits = hitsPerPlayer_y[i];
+// y_hitsPerPlayer ~ binomial(K_atBatsPerPlayer, phi_battingAverageAllPlayers);  // likelihood
+
+//phi_battingAverageAllPlayers ~ uniform(.3,.4);
+// target += uniform_lpdf(phi_battingAverageAllPlayers|.4,.7);
+ target += uniform_lpdf(phi_battingAverageAllPlayers|1,0);
+ for(i in 1:N_numberOfPlayers) {
+  int atBats = K_atBatsPerPlayer[i];
+  int hits = y_hitsPerPlayer[i];
   for(j in 1:atBats) {
     print("target--log ",target());
     print("target--base10 ",exp(target()));
     print("");
-    print("battingAverageAllPlayers_phi ",battingAverageAllPlayers_phi);
+    print("phi_battingAverageAllPlayers ",phi_battingAverageAllPlayers);
     if (j <= hits) {
       print("hit");
-      //target += bernoulli_lpmf(1|battingAverageAllPlayers_phi);
-      target += log(battingAverageAllPlayers_phi);
-      //target += battingAverageAllPlayers_phi;
+      //target += bernoulli_lpmf(1|phi_battingAverageAllPlayers);
+      target += log(phi_battingAverageAllPlayers);
+      //target += phi_battingAverageAllPlayers;
     }
     else {
       print("out");
-      //target += bernoulli_lpmf(0|battingAverageAllPlayers_phi);
-      target += log(1-battingAverageAllPlayers_phi);
-      //target += 1-battingAverageAllPlayers_phi;
+      //target += bernoulli_lpmf(0|phi_battingAverageAllPlayers);
+      target += log(1-phi_battingAverageAllPlayers);
+      //target += 1-phi_battingAverageAllPlayers;
     }
  }
 }
@@ -73,18 +144,18 @@ dataframe <- with(dataframe, data.frame(FirstName, LastName,
 print(dataframe);
 
 
-numberOfPlayers_N <- dim(dataframe)[1]
-atBatsPerPlayer_K <- dataframe$At.Bats
-hitsPerPlayer_y <- dataframe$Hits
+N_numberOfPlayers <- dim(dataframe)[1]
+K_atBatsPerPlayer <- dataframe$At.Bats
+y_hitsPerPlayer <- dataframe$Hits
 
 
-M <- 20;
+M <- 1000;
 
 
 fit_pool <-
-  sampling(pooledBattingAverage,data=c("numberOfPlayers_N", "atBatsPerPlayer_K", "hitsPerPlayer_y"),iter=(M), chains=1, warmup=10)
+  sampling(pooledBattingAverage,data=c("N_numberOfPlayers", "K_atBatsPerPlayer", "y_hitsPerPlayer"),iter=(M/2), chains=1)
 
-print(fit_pool, c("battingAverageAllPlayers_phi"), probs=c(0.1, 0.5, 0.9));
+print(fit_pool, c("phi_battingAverageAllPlayers"), probs=c(0.1, 0.5, 0.9));
 
 ```
 
