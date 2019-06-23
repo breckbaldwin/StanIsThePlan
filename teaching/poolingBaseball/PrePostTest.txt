@@ -1,0 +1,20 @@
+Baseball
+
+What is the difference between discrete and continuous data? 
+
+What is the difference between 1 hit for 4 times at bat and 10 hits at 40 times at bat?
+
+What is a maximum liklihood estimtate? 
+
+What is the mean of the following distribution?
+
+What is the mode of the following distribution? 
+
+What is the difference between multimodal and multinomial.
+
+Describe the relationship between a posterior distribtution and a point estimate for a player that has hit 4/10. What happens when that is 400/1000? 
+
+How Stan Works
+
+What is the equivalent form of the following Stan program?
+
