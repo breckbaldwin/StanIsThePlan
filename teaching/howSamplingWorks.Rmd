@@ -1,0 +1,85 @@
+---
+title: "`"
+output: html_document
+---
+
+
+# Metropolis/Hastings
+
+<need to describe>===map to baseball problem? 
+
+I want the prob distribution of a baseball player with 1 hit at 4 at bats. 
+Maximum liklihood is 250 hitter. Actual probability is 0 that P(hit) = .2500000. 
+To get a probability we need to break it down into a historgram, what a 250 hitter means is .2495 <= P(hit) < .2505. 
+
+A 'pro hitter' is a hitter that hits 250 or better. We really want 'is X a good hitter' given 1 hit in 4 at bats. Maximum liklihood estimate (MLE). The paramater of interest (POI) is 'is X a good hitter', what is the probability they are? 
+
+P(X is a good hitter | 1 hit/4 at bats) = 
+
+  P(X is a good hitter | hit) ? P(X is a good hitter |out) ? P(X is a good hitter |out) ? P(X is a good hitter |out)
+  
+  P(X is a good hitter | hit) = 
+
+X is a good hitter = X's true batting average ability > 200 
+
+  
+  
+  
+
+
+
+```{r}
+samples = array(500) #numeric(500) # 500 samples.
+samples[1]=110 # The initial guess
+
+for (i in 2:500)
+{
+  target = 0.0
+  proposal = samples[i-1] + rnorm (1, 0, 5) # Proposal value
+  threshold = runif (1)
+  if ((dnorm (proposal, 100, 15) / dnorm (samples[i-1], 100, 15)) > )
+    samples[i] = proposal # Accept proposal
+  else (samples[i] = samples[i-1]) # Reject proposal
+}
+
+hist(samples)
+```
+
+
+```{r}
+samples = array(500) #numeric(500) # 500 samples.
+samples[1]=110 # The initial guess
+
+for (i in 2:500)
+{
+  target = 0.0
+  proposal = samples[i-1] + rnorm (1, 0, 5) # Proposal value
+  
+  if ((dnorm (proposal, 100, 15) / dnorm (samples[i-1], 100, 15)) > runif (1))
+    samples[i] = proposal # Accept proposal
+  else (samples[i] = samples[i-1]) # Reject proposal
+}
+
+hist(samples)
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
