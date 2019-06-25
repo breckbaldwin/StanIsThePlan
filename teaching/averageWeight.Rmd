@@ -1,0 +1,99 @@
+---
+title: "averageWeight"
+output: html_document
+---
+```{stan output.var=uniformWeightGuess}
+data {
+  real lower_bound;
+  real upper_bound;
+  int data_count;
+}
+
+parameters { 
+  real<lower=lower_bound,upper=upper_bound-1> alpha_lower_bound;  
+  real<lower=lower_bound+1,upper=upper_bound> beta_upper_bound;
+} 
+
+model { 
+
+ if (0 < data_count) {
+   100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ }
+ if (1 < data_count) {
+   100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ }
+ if (2 < data_count) {
+   100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ }
+ if (3 < data_count) {
+   100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ }
+ if (4 < data_count) {
+   100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ }
+ if (5 < data_count) {
+   100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ }
+ if (6 < data_count) {
+   100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ }
+}
+
+```
+
+
+```{r}
+library(rstan)
+
+lower_bound = 50;
+upper_bound = 300
+data_count = 2L;
+
+fit <- stan("test.stan", data=c("lower_bound","upper_bound","data_count"), iter=1000, chains= 1)
+
+launch_shinystan(fit)
+```
+
+
+
+This example uses continuous data to pool/average peoples weights. 
+```{stan output.var=averageWeight}
+//Can we configure sample size, num threads etc... from inside Stan program? 
+
+parameters { 
+  //real<lower=50,upper=500> alpha_lower_bound;  
+  //real<lower=50,upper=500> beta_upper_bound;
+  real<lower=50,upper=500> mu_mean;
+  real<lower=0,upper=5> sigma_standard_deviation;
+} 
+
+model { 
+ /*alpha_lower_bound ~ uniform(50,500);
+ beta_upper_bound ~ uniform(50,500);
+ 100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ 120.4 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ 101.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
+ */
+ 
+ 100.0 ~ normal(mu_mean,sigma_standard_deviation);
+ 120.0 ~ normal(mu_mean,sigma_standard_deviation);
+ 90.0 ~ normal(mu_mean,sigma_standard_deviation);
+ 150.0 ~ normal(mu_mean,sigma_standard_deviation);
+ 100.0 ~ normal(mu_mean,sigma_standard_deviation);
+ 
+}
+```
+
+
+```{r setup, include=TRUE, echo=FALSE}
+library(rstan)
+library("shinystan")
+
+fit <-
+  sampling(averageWeight)
+
+print(fit)
+
+launch_shinystan(fit)
+```
+```
