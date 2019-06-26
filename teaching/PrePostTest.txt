@@ -1,3 +1,20 @@
+1- What will the posterior of the following Stan model resemble?
+============
+parameters { 
+  real<lower = 0, upper=100> to_be_estimated;
+} 
+model { 
+}
+============
+
+- nothing, won't do anything without constraints in model block
+- roughly uniform distribution from 0 to 100
+- .....
+
+2- Is the concept of prior hard coded into Stan?
+
+3- Why does more data increase confidence? 
+
 Baseball
 
 What is the difference between discrete and continuous data? 

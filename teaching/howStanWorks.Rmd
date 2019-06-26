@@ -58,24 +58,22 @@ fit <-
 ```
 
 
-# Metropolis/Hastings
 
-<need to describe>===map to baseball problem? 
 
-```{r}
-samples = array(500) #numeric(500) # 500 samples.
-samples[1]=110 # The initial guess
-for (i in 2:500)
-{
-  target = 0.0
-  proposal = samples[i-1] + rnorm (1, 0, 5) # Proposal value
-  if ((dnorm (proposal, 100, 15) / dnorm (samples[i-1], 100, 15)) > runif (1))
-    samples[i] = proposal # Accept proposal
-  else (samples[i] = samples[i-1]) # Reject proposal
+```{stan output.var=shortest_stan_program}
+parameters { 
+  real<lower=0,upper=10> to_be_estimated;
 }
 
-hist(samples)
 ```
+
+```{r}
+library(rstan)
+
+fit <- sampling(shortest_stan_program, iter=1000, chains= 1)
+
+```
+
 
 # A deconstructed Stan program
 
@@ -185,3 +183,89 @@ generated quantities {
 
 ```
 
+```{stan output.var=pooledBattingAverage}
+functions {
+  
+}
+
+data { 
+  int<lower=0> N_numberOfPlayers;           // items, usually N
+  int<lower=0> K_atBatsPerPlayer[N_numberOfPlayers];        // initial trials, sometimes K
+  int<lower=0> y_hitsPerPlayer[N_numberOfPlayers];        // initial successes, usually y
+} 
+
+transformed data { //suggested best practice, verify you are getting the data you think you are
+  print("N_numberOfPlayers: ",N_numberOfPlayers);
+  print("K_atBatsPerPlayer: ",K_atBatsPerPlayer);
+  print("y_hitsPerPlayer: ",y_hitsPerPlayer);
+} 
+
+parameters { 
+  real<lower=0, upper=1> phi_battingAverageAllPlayers;  // chance of success (pooled) 
+  //real<lower=0, upper=1> battingAverageOnePlayer;
+} 
+
+model { 
+// y_hitsPerPlayer ~ binomial(K_atBatsPerPlayer, phi_battingAverageAllPlayers);  // likelihood
+
+//phi_battingAverageAllPlayers ~ uniform(.3,.4);
+// target += uniform_lpdf(phi_battingAverageAllPlayers|.4,.7);
+ //target += uniform_lpdf(phi_battingAverageAllPlayers|1,0);
+ for(i in 1:N_numberOfPlayers) {
+  int atBats = K_atBatsPerPlayer[i];
+  int hits = y_hitsPerPlayer[i];
+  for(j in 1:atBats) {
+    print("target--log ",target());
+    print("target--base10 ",exp(target()));
+    print("");
+    print("phi_battingAverageAllPlayers ",phi_battingAverageAllPlayers);
+    if (j <= hits) {
+      print("hit");
+      //target += bernoulli_lpmf(1|phi_battingAverageAllPlayers);
+      target += log(phi_battingAverageAllPlayers);
+      //target += phi_battingAverageAllPlayers;
+    }
+    else {
+      print("out");
+      //target += bernoulli_lpmf(0|phi_battingAverageAllPlayers);
+      target += log(1-phi_battingAverageAllPlayers);
+      //target += 1-phi_battingAverageAllPlayers;
+    }
+ }
+}
+}
+
+generated quantities { 
+} 
+
+```
+
+R program that reads data, runs Stan program above and prints out the results. 
+```{r setup, include=TRUE, echo=FALSE}
+library(rstan);
+#df <- read.csv("Clemente.txt", sep="\t");
+
+dataframe <- read.csv("EfronMorrisBB.txt", sep="\t");
+dataframe <- with(dataframe, data.frame(FirstName, LastName, 
+                          Hits, At.Bats, 
+                          RemainingAt.Bats,
+                          RemainingHits = SeasonHits - Hits));
+
+
+print(dataframe);
+
+
+N_numberOfPlayers <- dim(dataframe)[1]
+K_atBatsPerPlayer <- dataframe$At.Bats
+y_hitsPerPlayer <- dataframe$Hits
+
+
+M <- 1000;
+
+
+fit_pool <-
+  sampling(pooledBattingAverage,data=c("N_numberOfPlayers", "K_atBatsPerPlayer", "y_hitsPerPlayer"),iter=(M/2), chains=1)
+
+print(fit_pool, c("phi_battingAverageAllPlayers"), probs=c(0.1, 0.5, 0.9));
+
+```
