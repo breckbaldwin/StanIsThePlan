@@ -1,0 +1,51 @@
+---
+title: "More data, more power"
+output: html_document
+---
+
+Module on demonstating how more data increases certainty. 
+
+```{stan output.var=baseballPower}
+data {
+  int times_at_bat;
+}
+
+parameters { 
+  real<lower=0,upper=1000> batting_average;
+} 
+
+model { 
+  if (0 < times_at_bat) {
+    1 ~ bernoulli(batting_average/1000);
+  }
+  if (1 < times_at_bat) {
+    0 ~ bernoulli(batting_average/1000);
+  }
+   if (2 < times_at_bat) {
+    1 ~ bernoulli(batting_average/1000);
+  }
+  for (i in 3:times_at_bat) {
+    if ( i%2 >0) {
+      1 ~ bernoulli(batting_average/1000);
+    }
+    else {
+      0 ~ bernoulli(batting_average/1000);
+    }
+  }
+}
+
+```
+
+
+
+```{r}
+library(rstan)
+
+times_at_bat = 2000;
+
+fit <- stan("test.stan", data=c("times_at_bat"), iter=1000, chains= 1)
+
+plot(fit)
+```
+
+Should plot on same graph values for times_at_bat = 2, 20, 200, 2000.
