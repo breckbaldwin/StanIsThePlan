@@ -1,0 +1,50 @@
+---
+title: "How Distributions Work"
+output: html_document
+---
+Stan uses distributions to approximate answers using probabilities instead of using math rules. A very simple statement like "42 = variableA" trivially should assign to variable A the value 42. We are going to do it a different way with sampling. 
+
+Introducing the normal distribution, a.k.a. your friend/nemisis the bell curve.
+
+```{stan output.var=the_answer_normal}
+parameters {
+  real<lower=0,upper=3> sigma_standard_dev;
+  real<lower=0,upper=100> the_answer;
+}
+
+model {
+  42 ~ normal(the_answer,sigma_standard_dev);
+}
+
+```
+
+```{r}
+library(rstan);
+
+fit <-
+  sampling(the_answer,iter=1000, chains=1)
+
+```
+The normal distribution has the nice property that the mean, 'the_answer', is interpretable as the one data point we provided it. Below is graph of the normal distribution.
+
+<show histogram>
+
+```{stan output.var=the_answer_exponential}
+
+parameters {
+  real<lower=0,upper=10> lambda_the_answer_exponential;
+}
+
+model {
+  42 ~ exponential(lambda_the_answer_exponential);
+}
+```
+
+```{r}
+library(rstan);
+
+fit <-
+  sampling(the_answer_exponential,iter=1000, chains=4)
+
+```
+The mean and 95% interval of the_answer_exponential bears no resemblelance to 'the_answer', but the the_answer_exponential does configure, or paramaterize the exponential distribution that we then can simulate data from to see where '42' lay. 

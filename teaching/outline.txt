@@ -1,0 +1,5 @@
+Introduction of scope
+  - What we will cover. 
+  - Getting started with Rstudio Cloud
+    - Credentials
+    - Compile/run simple Stan program

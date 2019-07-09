@@ -1,0 +1,31 @@
+---
+title: "Why Posteriors?"
+output: html_document
+---
+
+One could be excused for thinking that a single point estimate is what we really need. Posteriors are more work to compute, harder to interpret. 
+
+Some motivating examples
+
+Single parameter: Website response times: No web engineer is going to be satisfied average response times, what is needed is a distribution, probably over time of day, mins/maxes and so on. 
+
+This is also a good time to introduce how to read distributions. 
+- Uniform
+- Normal
+- Exponential
+- Some multi-modal dist.
+
+Multi paramater: There is no average human, airforce example of pilot measurements across 8 dimensions over 4k samples yeilded no candidate that was the average of all 8 dimensions. So point estimates do not combine well, however distributions combine just fine. The math makes sense, consider 8 dimensions with 5 possible values. 8^5=32768 possible combinations. See "The End of Average" https://www.thestar.com/news/insight/2016/01/16/when-us-air-force-discovered-the-flaw-of-averages.html. 
+
+# How to play with posteriors
+
+## Calibration
+
+## Sharpness
+
+## Combining posteriors
+
+
+
+
+
