@@ -1,3 +1,10 @@
+0- Given the below data points,
+
+[1,1,1,1,1,1,1,1]
+
+There is a unique solution. 
+
+
 1- What will the posterior of the following Stan model resemble?
 ============
 parameters { 
@@ -14,6 +21,13 @@ model {
 2- Is the concept of prior hard coded into Stan?
 
 3- Why does more data increase confidence? 
+
+4- What situations call for point estimates rather that posteriors?
+  - problems where average values are important and extremes are not. 
+  
+5- What situations call for posteriors rather than point estimates?
+  - multiple dimensions 
+  - problems where maximum or minimum values are important. 
 
 Baseball
 
