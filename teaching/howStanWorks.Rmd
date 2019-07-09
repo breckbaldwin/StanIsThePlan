@@ -65,6 +65,12 @@ parameters {
   real<lower=0,upper=10> to_be_estimated;
 }
 
+model {
+  print(target());
+//increment_log_prob(binomial_log(y, K, phi));
+
+}
+
 ```
 
 ```{r}

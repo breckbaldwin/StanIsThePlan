@@ -22,6 +22,11 @@ model {
  y_hit1_out0 ~ bernoulli(phi_probabilityOfHit);  
 }
 
+generated quantities {
+  real y_predicted_hits;
+  y_predicted_hits = bernoulli_rng(phi_probabilityOfHit);
+}
+
 ```
 
 ```{r setup, include=TRUE, echo=FALSE}
@@ -32,12 +37,19 @@ number_outs <- 40
 y_hit1_out0 <- c(rep(1,number_hits),rep(0,number_outs))
 N_at_bats <- length(y_hit1_out0)
 
-M_iterations <- 10000;
+M_iterations <- 1000;
 
 fit <-
   sampling(simpleStanBatting,data=c("y_hit1_out0", "N_at_bats"),iter=(M_iterations), chains=1)
 
 print(fit, c("phi_probabilityOfHit"), probs=c(0.1, 0.5, 0.9));
+
+simulated_at_bats = length(unlist(extract(fit,"y_predicted_hits"),use.names=FALSE))
+
+simulated_hits = sum(unlist(extract(fit,"y_predicted_hits"),use.names=FALSE))
+
+print(simulated_hits/simulated_at_bats)
+
 
 ```
 

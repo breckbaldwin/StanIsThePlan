@@ -15,7 +15,8 @@ parameters {
 } 
 
 model { 
-
+ 
+ alpha_lower_bound ~ normal(0,1);
  if (0 < data_count) {
    100.0 ~ uniform(alpha_lower_bound,beta_upper_bound);
  }
