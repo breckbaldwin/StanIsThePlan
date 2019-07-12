@@ -1,0 +1,330 @@
+---
+title: "Intro to Bayes & Stan"
+author: "Alan O'Donnell"
+date: "7/10/2019"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+```{r}
+library(rstan)
+library(reticulate)
+use_python("/Users/alan/rc/stan-users-guide/bin/python")
+```
+
+```{python}
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy import stats
+```
+
+## A little bit about Bayes itself
+
+I actually care more about the high level take-away...
+
+Given
+1. ("your prior") what you believe right now about the unknowns (aka parameters, hypotheses...) you're trying to learn about/narrow down
+2. ("your likelihood model") your model for how things would look if you knew what the unknowns were
+Then: Bayes tells you how to update what you believe. You don't have a choice--we're going to *calculate* it!
+
+Example: "I think some data is going to be normally distributed... I'm just not quite sure yet which normal distribution (that is, what its mean and variance are)". You have some beliefs ("your prior") about what its mean and variance could be (the unknowns you'd like to learn about), and you think that if only you knew what the mean and variance were, then you'd know what the distribution of new data would be ("your likelihood"): a normal distribution with that mean and variance!
+
+$$
+p(H|D) = p(H) \frac{p(D|H)}{p(D)}
+$$
+
+Another version of Bayes' rule that I actually kind of prefer is in terms of "odds", the ratio of how probable you think one hypothesis is versus another:
+
+$$
+\frac{p(H_1|D)}{p(H_2|D)} = \frac{p(H_1)}{p(H_2)} \cdot \frac{p(D|H_1)}{p(D|H_2)}
+$$
+
+In words: how you feel relatively speaking about H1 versus H2 used to be p(H1)/p(H2). Now that you've seen some new data D, Bayes says you should feel what you used to feel... multiplied by p(D|H1)/p(D|H2), known as the "likelihood ratio".
+
+posterior odds of H1 vs. H2 = prior odds * likelihood ratio
+
+## A/B Testing
+
+
+
+## Actually, just "A testing" first
+
+```{r}
+prior_success_rate <- rbeta(10000, 2, 8)
+hist(prior_success_rate, xlim=c(0,1), col="red")
+```
+
+Conditioning on data!
+
+```{r}
+num_did_click = 25
+num_didnt_click = 75
+posterior_success_rate <- rbeta(10000, 2 + num_did_click, 8 + num_didnt_click)
+hist(posterior_success_rate, xlim=c(0,1), col="red")
+```
+
+Feedback: workthough of full Bayes exmaple with Beta, just to show the math isn't actually that bad.
+Checklist for eliciting your priors?
+
+Now let's do that in Stan.
+
+The result of running a Stan program is a bunch of samples from the posterior (fingers crossed, assuming all goes well...), plus a bunch of diagnostic information (yolo).
+
+```{r}
+just_a_testing_fit <- stan("./just-a-testing.stan", data = list(
+  num_trials = 25 + 75,
+  num_successes = 25
+))
+stan_posterior_success_rate <- extract(just_a_testing_fit)$success_rate
+```
+
+```{r}
+hist(stan_posterior_success_rate, xlim=c(0,1), col="red")
+```
+
+This says that after seeing the data, we're not really sure what the success rate is going to be, but we're more certain than we used to be:
+
+For what it's worth, this is what we think the rate is "on average" (averaging over our uncertainty).
+
+```{r}
+mean(stan_posterior_success_rate)
+```
+
+
+## Now A/B testing!
+
+```{r}
+stan_ab_fit <- stan("./ab.stan", data = list(
+  num_trials_a = 25 + 75,
+  num_successes_a = 25,
+  num_trials_b = 20 + 100,
+  num_successes_b = 20
+))
+posterior_draws <- extract(stan_ab_fit)
+```
+
+```{r}
+hist(posterior_draws$success_rate_a, col="red", xlim=c(0,1))
+hist(posterior_draws$success_rate_b, add=T, col="blue")
+```
+
+
+```{r}
+mean(posterior_draws$success_rate_a)
+```
+
+```{r}
+mean(posterior_draws$success_rate_b)
+```
+
+What's the probability (according to us, our model, our assumptions...) of A being better than B?
+
+```{r}
+mean(posterior_draws$success_rate_a - posterior_draws$success_rate_b > 0)
+```
+
+## Joint distributions
+
+This is what our prior over A and B looks like:
+
+```{python}
+with sns.axes_style("white"):
+  sns.jointplot(
+    x=stats.beta.rvs(2, 8, size=10000),
+    y=stats.beta.rvs(2, 8, size=10000),
+    kind="scatter", alpha=0.05, color="k",
+    xlim=(0,1), ylim=(0,1)
+)
+plt.show()
+```
+
+And the posterior:
+
+```{python}
+with sns.axes_style("white"):
+  sns.jointplot(
+    x=r.posterior_draws['success_rate_a'],
+    y=r.posterior_draws['success_rate_b'], 
+    kind="scatter", alpha=0.05, color="k",
+    xlim=(0,1), ylim=(0,1)
+)
+plt.show()
+```
+
+We've been implicitly saying that our beliefs about A are independent of our beliefs about B...
+
+```{python}
+def plot_correlated_normals(correlation):
+  x = np.random.normal(
+    loc = 0,
+    scale = 1, 
+    size = 10000
+  )
+  y = np.random.normal(
+    loc = correlation*x, 
+    scale = np.sqrt(1 - correlation**2), 
+    size = 10000
+  )
+  with sns.axes_style("white"):
+    sns.jointplot(x=x, y=y, kind="scatter", alpha=0.05, color="k")
+  plt.show()
+```
+
+```{python}
+plot_correlated_normals(correlation = 0.9) # play around with correlation
+```
+
+There's more to your joint beliefs than just your marginal beliefs!
+
+```{python}
+def plot_correlated_betas(correlation, shape, other_shape=None):
+  other_shape = other_shape or shape
+  x, y = np.random.multivariate_normal([0,0], [(1, correlation), (correlation, 1)], 10000).T
+  u, v = stats.norm.cdf(x), stats.norm.cdf(y)
+  a, b = stats.beta.ppf(u, shape[0], shape[1]), stats.beta.ppf(v, other_shape[0], other_shape[1])
+  with sns.axes_style("white"):
+    sns.jointplot(x=a, y=b, kind="scatter", alpha=0.05, color="k", xlim=(0,1), ylim=(0,1))
+  plt.show()
+```
+
+```{python}
+plot_correlated_betas(correlation = 0.9, shape = (2, 8))
+```
+
+Now for a Stan model that captures our *joint* beliefs about the two success rates!
+
+*NOTE* This is the version I used in the talk, but I realized afterwards that a simpler, non-hierarchical version works too. See below.
+
+Here's what our (hierarchical) prior looks like:
+
+```{python}
+mean_log_odds = np.random.normal(loc = -1.5, scale = 0.75, size = 10000)
+log_odds_a = np.random.normal(loc = mean_log_odds, scale = 0.1, size = 10000)
+log_odds_b = np.random.normal(loc = mean_log_odds, scale = 0.1, size = 10000)
+a = stats.logistic.cdf(log_odds_a)
+b = stats.logistic.cdf(log_odds_b)
+with sns.axes_style("white"):
+  sns.jointplot(x=a, y=b, kind="scatter", alpha=0.05, color="k", xlim=(0,1), ylim=(0,1))
+plt.show()
+```
+
+Conditioning on the data in Stan:
+
+```{r}
+ab_stan_fit <- stan("./ab-dependent.stan", data = list(
+  num_a_trials = 25 + 75,
+  num_a_successes = 25,
+  num_b_trials = 20 + 100,
+  num_b_successes = 20
+))
+posterior_dependent_draws <- extract(ab_stan_fit)
+```
+
+```{python}
+with sns.axes_style("white"):
+  sns.jointplot(
+    x=r.posterior_dependent_draws['success_rate_a'],
+    y=r.posterior_dependent_draws['success_rate_b'],
+    kind="scatter", alpha=0.05, color="k",
+    xlim=(0,1), ylim=(0,1)
+)
+plt.show()
+```
+
+```{r}
+c(
+  mean(posterior_dependent_draws$success_rate_a),
+  mean(posterior_draws$success_rate_a)
+)
+```
+
+Our beliefs about A in this new model are tempered a bit from what we thought in the old one.
+
+```{r}
+c(
+  mean(posterior_dependent_draws$success_rate_b),
+  mean(posterior_draws$success_rate_b)
+)
+```
+
+Our beliefs about B are also tempered——in the opposite direction from A's!
+
+And now for the probability (according to us, our model, our assumptions...) that A is better?
+
+```{r}
+c(
+  mean(
+    posterior_dependent_draws$success_rate_a - posterior_dependent_draws$success_rate_b > 0),
+  mean(posterior_draws$success_rate_a - posterior_draws$success_rate_b > 0)
+)
+```
+
+So, still seems like A is better (72%), but not nearly as confident as we were before (94%)!
+
+```{r}
+hist(posterior_dependent_draws$success_rate_a - posterior_dependent_draws$success_rate_b)
+```
+
+Does this simple version work too? A priori, B's success rate is within a few percentage points of A's.
+
+```{python}
+a = stats.beta.rvs(2, 8, size=10000)
+b = np.maximum(0, np.minimum(1, np.random.normal(a, 0.02, size=10000)))
+with sns.axes_style("white"):
+  sns.jointplot(
+    x=a,
+    y=b,
+    kind="scatter", alpha=0.05, color="k",
+    xlim=(0,1), ylim=(0,1)
+)
+plt.show()
+```
+
+```{r}
+ab_plus_or_minus_stan_fit <- stan("./ab-plus-or-minus.stan", data = list(
+  num_trials_a = 25 + 75,
+  num_successes_a = 25,
+  num_trials_b = 20 + 100,
+  num_successes_b = 20
+))
+posterior_plus_or_minus_draws <- extract(ab_plus_or_minus_stan_fit)
+```
+
+```{python}
+with sns.axes_style("white"):
+  sns.jointplot(
+    x=r.posterior_plus_or_minus_draws['success_rate_a'],
+    y=r.posterior_plus_or_minus_draws['success_rate_b'],
+    kind="scatter", alpha=0.05, color="k",
+    xlim=(0,1), ylim=(0,1)
+)
+plt.show()
+```
+
+```{r}
+mean(posterior_plus_or_minus_draws$success_rate_a - posterior_plus_or_minus_draws$success_rate_b > 0)
+```
+
+
+## "A through Z testing"
+
+What if you want to try out more than just two version?
+
+## Scratch
+
+```{python}
+correlation = 0.9
+mu = -1.5
+sigma = 0.5
+log_odds_a, log_odds_b = np.random.multivariate_normal(
+  mean = [mu, mu], 
+  cov = sigma*sigma*np.array([(1, correlation), (correlation, 1)]),
+  size = 10000).T
+a = stats.logistic.cdf(log_odds_a)
+b = stats.logistic.cdf(log_odds_b)
+with sns.axes_style("white"):
+  sns.jointplot(x=a, y=b, kind="scatter", alpha=0.05, color="k", xlim=(0,1), ylim=(0,1))
+plt.show()
+```
