@@ -1,5 +1,72 @@
+Sales pitch: A fully fleshed example
+  A/B testing example
+  Naive example of straight counting. How can this be improved?
+    Sentivity to what we know about click through rates generally
+    Sensivity to the amount of data we have. With huge data just count.
+    We can do well with less data,the methods are:
+      priors: Don't waste effort figuring out that 10% is the expected rate. ? how much do you gain from strong priors?
+      It reduces your data consumption by order of maginitude. 
+    Write program to add the same data to a non-pooled and a partially pooled stan progam. 
+    
+    clicks per 500 views
+    
+    A 1 B 0
+
+    +/- prior that is interesting
+    +/- partial pooling
+    visualize how it looks as you add data
+    
+    blue vs purple +100k
+    
+        
+    
+  One Page w/10% rate, what do you think?
+    Is this good, bad, normal. 
+    Ask what is a good click through rate? 
+      Introduce notion of prior
+      W/o prior you may have to do lots more data collection
+        size of data matters whether naive assumpotiosn or priors
+    We can do better with both priors and similar alternatives that we want the best of.
+    
+    
+
 Introduction of scope
   - What we will cover. 
   - Getting started with Rstudio Cloud
-    - Credentials
+    - Credentials, github/google/facebook to url https://rstudio.cloud/project/405221
+    - Copies my home dir to your own instance. All relevant class materials should be there in Lecture0 folder. Click to the right of the folder icon, file name....
+    - "save a permament copy" if you want to come back to where you left off. 
     - Compile/run simple Stan program
+
+Sampling demo
+  - single value normal
+      - we get probability distribution for possible values for the_answer
+  - single value lognormal--doesn't work great, 20 mean for 42 answer
+      *exp(mean(dist)) = 20
+  - 20x single value lognormal works fine. 
+
+  - add data that supports a distribution
+  - Do it by generating from a distribution, this is a step in Bayesian work flow. 
+  - Discuss bad fits and the signs of them in diagnostics. 
+  - 
+#Discrete vs continuous data
+
+#How sampling works
+  - met hastings
+  - Stan
+From "The end of Average"
+p 11 "Averages have thier place. If you're comparing two differnent groups of people, liek comparing...., as opposed to comapring two individuals from each of those groups."
+
+"(averages) create the illusion of knowledge, when in fact the average disguises what is most important about an individual."
+
+"
+
+Averages drive us towards beige/grey if the extremes are colors. 
+SHow the paint trick of mixing paint stipes and unmixxing them to original.https://theawesomer.com/color-unmixing-machine/525432/
+
+Art idea: take the Mona Lisa, get average of all colors and paint it. 
+Get iconic images and turn it into a guessing game what the source was. Get Karen to do the work/PR. 
+Make them puzzles as to what exactly has been averaged over. Round image. Title with Stan program. Recreate orignial with more and more complete representation. 
+*Average*
+
+  

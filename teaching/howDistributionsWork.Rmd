@@ -2,7 +2,7 @@
 title: "How Distributions Work"
 output: html_document
 ---
-Stan uses distributions to approximate answers using probabilities instead of using math rules. A very simple statement like "42 = variableA" trivially should assign to variable A the value 42. We are going to do it a different way with sampling. 
+Stan uses distributions to approximate answers using probabilities instead of using math rules you are familliar with from basic algebra. A very simple statement like "42 = variableA" trivially should assign to variable A the value 42. We are going to do it a different way with sampling. 
 
 Introducing the normal distribution, a.k.a. your friend/nemisis the bell curve.
 
@@ -24,19 +24,50 @@ library(rstan);
 fit <-
   sampling(the_answer,iter=1000, chains=1)
 
+hist(extract(fit)$the_answer)
+
+
 ```
 The normal distribution has the nice property that the mean, 'the_answer', is interpretable as the one data point we provided it. Below is graph of the normal distribution.
 
 <show histogram>
 
-```{stan output.var=the_answer_exponential}
+```{stan output.var=the_answer_lognormal}
 
 parameters {
-  real<lower=0,upper=10> lambda_the_answer_exponential;
+  real<lower=0,upper=5> log42;
+  real<lower=0,upper=10> sigma_standard_deviation;
 }
 
 model {
-  42 ~ exponential(lambda_the_answer_exponential);
+  42 ~ lognormal(log42,sigma_standard_deviation);
+}
+
+
+```
+
+```{r}
+library(rstan);
+
+fit <-
+  sampling(the_answer_lognormal,iter=1000, chains=4)
+
+hist(extract(fit)$log42)
+print(fit)
+exp(mean(extract(fit)$log42))
+```
+The mean and 95% interval of the_answer_exponential bears no resemblelance to 'the_answer', but the the_answer_exponential does configure, or paramaterize the exponential distribution that we then can simulate data from to see where '42' lay. 
+```{stan output.var=the_answer_lognormalx20}
+
+parameters {
+  real<lower=0,upper=5> log42x20;
+  real<lower=0,upper=10> sigma_standard_deviationx20;
+}
+
+model {
+  for(i in 1:20){
+    42 ~ lognormal(log42x20,sigma_standard_deviationx20);
+  }
 }
 ```
 
@@ -44,7 +75,32 @@ model {
 library(rstan);
 
 fit <-
-  sampling(the_answer_exponential,iter=1000, chains=4)
+  sampling(the_answer_lognormalx20,iter=1000, chains=4)
+
+print(fit)
+exp(mean(extract(fit)$log42))
 
 ```
-The mean and 95% interval of the_answer_exponential bears no resemblelance to 'the_answer', but the the_answer_exponential does configure, or paramaterize the exponential distribution that we then can simulate data from to see where '42' lay. 
+
+Data always wins if there is enough of it. Perhaps only for point estimates. Check with Jonathan.
+
+```{stan output.var=}
+data {
+  int <lower=0> N;
+  real <lower=-100,upper=100> uniform_generated_data[N];
+}
+
+parameters {
+  real<lower=-100,upper=100> mu_mean;
+  real<lower=0,upper=100> sigma_std_deviation;
+}
+
+model {
+  uniform_generated_data ~ uniform(mu_mean,sigma_std_deviation);
+}
+
+  
+```
+
+
+
