@@ -1,0 +1,14 @@
+---
+title: "A/B testing"
+output: html_document
+---
+
+Scale on count of 500
+
+Strong prior information
+0-10% range
+
+Hiearchy...
+
+Independent case for A..Z tests, pages are really different.
+

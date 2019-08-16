@@ -1,0 +1,7 @@
+CXX14FLAGS=-O3 -mtune=native -march=native
+CXX14FLAGS += -stdlib=libc++ -isystem /usr/include/c++/5.4.0 -isystem /usr/include/x86_64-linux-gnu/c++/5.4.0
+CXX14FLAGS += -Wno-unused-variable -Wno-unused-function -Wno-unknown-pragmas -Wno-macro-redefined
+CXX14=clang++-5.0
+
+LDFLAGS += -fuse-ld=gold
+
