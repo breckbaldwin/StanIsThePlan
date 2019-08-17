@@ -6,6 +6,7 @@ output: html_document
 ```{stan output.var=helloWorld.stan}
 
 /*
+Bistroteque 
 Print Frequency
 Printing for a print statement happens every time it is executed. The transformed
 data block is executed once per chain, the transformed parameter and model blocks
@@ -24,24 +25,28 @@ data {
 }
 
 transformed data { 
-  helloWorld();
+  print("hello form transformed data");
+  
  
 } 
 parameters { 
+  real<lower=0,upper=1> foo;
    
 }
 transformed parameters { 
-  helloWorld();
+  print("hellow from transformed paramters");
  
 } 
 
 model { 
   print("Hello from the model block");
+  
 }
 
 generated quantities { 
+  real bar=foo;
   print("Hello from the generated quantities block");
-  // print("generated quantities being called");
+  
 } 
 
 
@@ -54,7 +59,8 @@ generated quantities {
 ```{r}
 library(rstan)
 fit <-
-  sampling(helloWorld.stan, algorithm = "Fixed_param",     iter=2,warmup=2)
+  #sampling(helloWorld.stan, algorithm = "fixed_param", chains=2, iter=2,warmup=2)
+  sampling(helloWorld.stan, algorithm ="NUTS", chains=2, iter=2,warmup=0)
 ```
 
 
@@ -72,6 +78,20 @@ model {
 }
 
 ```
+
+from: https://mc-stan.org/docs/2_19/reference-manual/overview-of-data-types.html
+
+Constraints provide error checking for variables defined in the data, transformed data, transformed parameters, and generated quantities blocks. Constraints are critical for variables declared in the parameters block, where they determine the transformation from constrained variables (those satisfying the declared constraint) to unconstrained variables (those ranging over all of  
+R
+n
+ ).
+
+It is worth calling out the most important aspect of constrained data types:
+
+The model must have support (non-zero density, equivalently finite log density) at parameter values that satisfy the declared constraints.
+
+
+
 
 ```{r}
 library(rstan)

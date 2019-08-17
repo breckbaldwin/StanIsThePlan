@@ -1,3 +1,84 @@
+- Assume that some people learn best by doing and watching things run. 
+Who this class is for:
+
+Not statisticians, for programmers. Let us do a feature matrix
+
+Great programmers communicate well via source code/documentation, great statisticians work in literally Greek where succinctness is valued over understandability. 
+
+Statiticians are valued for being clever, programmers for building good stuff. 
+
+Programmers value longevity and future growth, staticians value fame
+
+Programmers know they are hobbits, statiticians want to be eleves. 
+
+Signs of a good programmer: Lower educational attainment, clarity trumps cleverness/succintness, builds things
+
+Signs of a good statistician: Higher educaitonal attainment, writes in literally greek--secret society levels of hidden meaning, less is more, hires someone to assemble ikea furniture. 
+
+
+
+
+
+- cmdstan, simple program
+  - install
+  - run
+  - look at output
+- Overview of RStudio interface
+  - Helloworld
+
+-Motivating example
+  - Why Bayesian Modeling?
+  - Jagged Profile--30% around mean value. 2% of pilots were avg on 4 dimensions, 0 on all.
+  - simulate pilot data in R or in generated quantities.
+  - Expand 'middle' to 90%, only 50% fit in that zone.
+  - Very little data is actually "big data". 
+  
+- data -> model=dist1...distn. 
+
+prediction 
+
+given data + param(fn training data) 
+  
+-Play with distributions
+  show identity
+  concentration 20x data
+  alternate scales log
+  averaging 0,42
+  bimodal 0,42
+
+-Sampling
+  Grid--bayes rule
+    - break grid with dimensionality
+  Met Hastings
+  Stan version
+    -target += 
+- Stan Hello World. 
+  - What runs when.
+- Modeling
+  - A/B test case
+  - A/B with hier
+  - Strong model, golf.
+  - Prediction and AI <need help with prediciton> 
+  - Continuous vs discrete
+- Validation
+  - Diagnostics
+- Bayesian workflow: How to encode your problem in Stan
+  - No promises
+  -
+  
+  Sources of non-concentrated dists. 
+    - Not much data
+    - broad values for data we see
+    - ??
+  
+Sociology of Stan
+  -Fellow Bayesians are assholes.
+  -
+
+  - 
+  
+Pooling is a wet blanket: Alan. 
+  
 Sales pitch: A fully fleshed example
   A/B testing example
   Naive example of straight counting. How can this be improved?
@@ -38,7 +119,7 @@ Introduction of scope
     - "save a permament copy" if you want to come back to where you left off. 
     - Compile/run simple Stan program
 
-Sampling demo
+Sampling demo--playing with distributions and sampling. 
   - single value normal
       - we get probability distribution for possible values for the_answer
   - single value lognormal--doesn't work great, 20 mean for 42 answer
@@ -69,4 +150,15 @@ Get iconic images and turn it into a guessing game what the source was. Get Kare
 Make them puzzles as to what exactly has been averaged over. Round image. Title with Stan program. Recreate orignial with more and more complete representation. 
 *Average*
 
-  
+If we are to avoid the tyranny of average but do useful mathematical reasoning we need posteriors. 
+
+
+Why models matter: From "End of Average" Todd Rose. P 64. Overall faster typists make fewer errors. Average based analysis would lead one to think that a typist should type faster to reduce errors when in fact the opposite is true. The error is complete pooling, partial pooling would be better. Not sure????
+
+An average value will in general do better than pick at random even if the average runs roughshod over differences. There has to be a tradeoff point. 
+
+# Naive Bayes
+You can ignore all the fancy stats that generated the posterior and sample directly. The goal is the posterior, means etc...Any means to the means. 
+
+
+

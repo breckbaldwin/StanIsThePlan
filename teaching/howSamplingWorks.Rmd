@@ -2,8 +2,6 @@
 title: "`"
 output: html_document
 ---
-
-
 # Metropolis/Hastings
 
 <need to describe>===map to baseball problem? 
@@ -22,12 +20,6 @@ P(X is a good hitter | 1 hit/4 at bats) =
 
 X is a good hitter = X's true batting average ability > 200 
 
-  
-  
-  
-
-
-
 ```{r}
 samples = array(500) #numeric(500) # 500 samples.
 samples[1]=110 # The initial guess
@@ -37,7 +29,7 @@ for (i in 2:500)
   target = 0.0
   proposal = samples[i-1] + rnorm (1, 0, 5) # Proposal value
   threshold = runif (1)
-  if ((dnorm (proposal, 100, 15) / dnorm (samples[i-1], 100, 15)) > )
+  if (dnorm (proposal, 100, 15) / dnorm (samples[i-1], 100, 15) > threshold)
     samples[i] = proposal # Accept proposal
   else (samples[i] = samples[i-1]) # Reject proposal
 }

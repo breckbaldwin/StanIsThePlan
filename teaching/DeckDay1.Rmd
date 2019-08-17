@@ -141,71 +141,7 @@ hist(samples)
 
 ## Our First Stan Program
 
-```{stan eval=FALSE, include=FALSE, output.var=noData.stan}
-parameters {
-  real<lower=0,upper=100> min_value;//starts life drawn from a uniform dist
-  real<lower=0,upper=100>  max_value;//starts life drawn from a uniform dist
-}
 
-model {
- 
-  //print("unconstrained target",target());
- 
-}
-```
-
-```{r}
-library(rstan)
-library("shinystan")
-
-
-fit <-
-  sampling(noData.stan, chains=4,iter=1000)
-
-print(fit)
-
-hist(extract(fit)$lp__);
-hist(exp(extract(fit)$lp__));
-```
-
-The above program just bangs off the stops of the mins/maxes. 
-
-```{stan output.var=theAnswer.stan}
-parameters {
-  real<lower=0,upper=100> min_value;//starts life drawn from a uniform dist
-  real<lower=0,upper=100>  max_value;//starts life drawn from a uniform dist
-  real<lower=0,upper=100> mean_value_twiddle; 
-  real<lower=0,upper=100> mean_value_target_increment; 
-}
-
-model {
- // print("before",target());
-  42 ~ uniform(min_value,max_value);
-  42 ~ normal(mean_value_twiddle,1); //closest we can get to assignment, can't do 42 = mean_value b/c there is no range of probabilities to explore. 
-  target += normal_lpdf(42|mean_value_target_increment,1);
- // print("after",target());
-}
-```
-
-
-
-
-
-```{r}
-library(rstan)
-library("shinystan")
-
-
-fit2 <-
-  sampling(theAnswer.stan)
-
-#review how logs/exponents work
-#exp(log(10)) = 10
-
-print(fit2)
-hist(extract(fit2)$lp__);
-hist(exp(extract(fit2)$lp__));
-```
 
 We manage to get something reasonable. 
 

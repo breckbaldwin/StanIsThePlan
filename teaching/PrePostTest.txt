@@ -49,3 +49,60 @@ How Stan Works
 
 What is the equivalent form of the following Stan program?
 
+- If we believe that the data generating process behind a phemonmenon under study is normally distributed, if we have one data point 3, please rank in relative liklyhood order the following subsequent values. Ties are possible
+
+  - 99
+  - 3
+  - 0
+  - -1
+
+Rank the same data assuming that we think the underlying distrubutin is uniform with one data point of 3.
+
+  - 99
+  - 3
+  - 0
+  - -1
+
+If I have two paramater values, 10, 100 with equal probability, what distributions are unlikely to fit this phemenone well?
+
+*uniform(0,200)
+*normal(60,sigma)
+*exponential(3)
+
+Describe the parmterization that would make these values equi-probable:
+5 and 10
+*normal(7.5,.1)
+*normal(7.5,100)
+*uniform(5,100)
+*normal(0,10)
+
+
+True/False: If I get a successful fit from a stan program I can rely on the resuts.
+
+Priors must preceede liklihood in a Stan program
+
+All estimated paramters have to have a prior in a Stan program
+
+- What the the probability of 3.442 in the following graph? (show uniform dis from 1 to 10 at .1 value. 
+
+---|
+*0, we can only assign probabilties to intervals.
+*.1
+*3.442/.1
+
+
+- What the the probability of the interval 3 to 4 in the following graph? (show uniform dis from 1 to 10 at
+*0
+* .1
+* .3+.4/2 = .35
+
+
+- What does pooling do?
+* shares information between things that could be thought of as seperate, e.g. performance of baseball players, web pages.
+
+- What are good candidates for pooling?
+* Coins from a roll of nickles.
+* height and weight
+* clicks per 500 views in A/B testing a web site.
+
+- 
