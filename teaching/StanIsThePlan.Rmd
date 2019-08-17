@@ -1,0 +1,53 @@
+---
+title: "Stan Is The Plan"
+author: "Jonathan Auerbach, Breck Baldwin"
+date: "8/17/2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Course Outline
+
+- Programmer focused on mechanics, not statistical theory
+- Enough statistics to get you started understanding what is going on overall
+- Get past high probability failure points
+
+```{r fig.height=3}
+hist(rexp(100,1),xlab="Stan Knowledge in Days",ylab="% Chance of Failure",main="Liklihood of Failure to Learn Stan")
+```
+
+## The State of Science
+
+* Averages are old school
+  + Easy science has been done, broad strokes of reality sorted
+  + Population pooled theory worked out with N's in the 1,000s
+* Human understandability of modeling 
+  + Deep Learning utterly opaque
+  + Do you really want black box AI doing prison sentencing?
+* Most of science is small to medium data
+  + Clinical trials in the 10's to 100's of subjects
+  + Big Data approaches fail
+
+## The Bayesian Modeling Response
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
