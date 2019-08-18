@@ -31,13 +31,84 @@ hist(rexp(100,1),xlab="Stan Knowledge in Days",ylab="% Chance of Failure",main="
   + Clinical trials in the 10's to 100's of subjects
   + Big Data approaches fail
 
-## The Bayesian Modeling Response
+## The Bayesian Modeling Response: The Road Kill Smartphone App
 
-## Slide with Bullets
+<img src="img/zebra.jpg" width=400> 
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+"Oh, that was easy," says Man, and for an encore goes on to prove that black is white and gets himself killed on the next zebra crossing.” Hitchikers Guide to the Galaxy
+
+Sort of Vision Zero project that keeps track of dangerous Zebra crossings via crowd sourced data. "Make is safe to walk and be absorbed in your phone"
+
+## 
+
+## Deep Learning Approach
+
+- Go/No Go decision. 
+<img black box>
+- 10000 training instances
+  + 5100 survive, 4900 die
+- Maximum Liklihood Estimate says go as will most any machine learning algo. 
+  + 5100/10000 = 51% go. 
+- High dimensional decisions you cannot obviously know the meaning of .51 
+  + No reliable calibration. Classifiers reporting scores of .2 can actually be .9 precise.
+
+## The relevant Stan program
+
+<code>
+transformed data {
+   int number_of_successful_crossings = 5100;
+   int number_of_crossing_attempts =10000;
+}
+parameters {
+   real<lower=0,upper=1> safe_to_pass;
+}
+model {
+  number_of_successful_crossings
+	  ~ binomial(number_of_crossing_attempts,safe_to_pass);
+}
+</code>
+
+`make teaching/simpleZebra`
+`teaching/simpleZebra optimize`
+`less output.csv`
+need command line histogramer
+
+## Bayesian Approach
+- Let us look at a posterior
+```{r}
+hist(rbinom(1000,100,.51))
+```
+1000 times we have 100 people use the zebra crossing and the x axis is the number that survive.
+
+## What does 'successes ~ binomial(attempts,probability)' mean?
+
+- Expands into bernouli
+- hmc(sucesses, attempts) -> probability
+- rng_sampler(probability,attempts) -> sucesses
+- successes,probability --> attempts?? 
+
+## Big Models beget Small Data 
+- what do I already assume/know? (prior)
+- cars aware y/n
+- special signage y/n
+- pedestrians expect y/n
+- what about similar looking locations? (pooling)
+
+## The Bayesian Narrative
+
+1. Factor in what you know (Prior)
+2. Model phenomenion as a combo of data and liklihood
+3. Examine posterior
+
+## Prior integration
+
+## Mechanistic integration
+
+## Pooling integration
+
+## Mechanics of sampling
+
+
 
 ## Slide with R Output
 
