@@ -2,7 +2,10 @@
 title: "Stan Is The Plan"
 author: "Jonathan Auerbach, Breck Baldwin"
 date: "8/17/2019"
-output: ioslides_presentation
+output: 
+  ioslides_presentation: 
+    highlight: null
+    incremental: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -68,13 +71,15 @@ model {
 }
 </code>
 
-`make teaching/simpleZebra`
+`make teaching/simpleZebra` not '
+`make teaching/simpleZebra.stan`
 `teaching/simpleZebra optimize`
 `less output.csv`
-need command line histogramer
+`teaching/metropolis_one_param sample algorithm=fixed_param num_samples=1 num_warmup=0`
+Annoying error: 
 
 ## Bayesian Approach
-- Let us look at a posterior
+- Let us look at a posterior for the binomial distribution:
 ```{r}
 hist(rbinom(1000,100,.51))
 ```
@@ -82,10 +87,57 @@ hist(rbinom(1000,100,.51))
 
 ## What does 'successes ~ binomial(attempts,probability)' mean?
 
-- Expands into bernouli
-- hmc(sucesses, attempts) -> probability
-- rng_sampler(probability,attempts) -> sucesses
-- successes,probability --> attempts?? 
+- 1 ~ binomial(2,prob) returns a probability. 
+  + 1 ~ bernoulli(prob) & 0 ~ bernoulli(prob)
+- Has awful property that we assign probabilities to a parameter than is itself a probability. 
+- binomial can be run in various directions
+  + ?successes? = binomial_rng(N_attempts, theta_config_prob);
+  + 
+## How does Sampling work?
+
+- We want to know the probability distribution of one or more params of interest
+- Analytic Solutions
+  + need example
+- Grid Approximation
+- Metropolis-Hastings
+- successes ~ binomial(attempts,probability)
+- target += binomial(successes 
+
+## Grid Approximation
+  - Test values from the support of a variable being estimated. 
+  - One variable is a comb approximation.
+  - `successes ~ binomial(attempts,probability)`
+```{r}
+vals = c(.0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0);
+total = sum(dbinom(5,10,vals))
+sum(dbinom(5,10,vals)/total)
+
+```
+
+## Metropolis Hastings
+
+- Foundation of current Stan sampler
+- Look at the single parameter case.
+- Look at acceptance rate.
+- Exercise: do the two parameter case. 
+- Suffers from dimensionality scaling problems.
+
+## Deconstructing a Stan program
+
+- HelloWorld.stan
+- Interface with external data
+- Interface with external data consumers
+  + RStudio
+  + ShinyStan
+- User defined binomial fn
+  + underflow case
+  + correct implementation
+
+## Where are we?
+
+- You ought to have a good idea of what sampling is.
+- Some familiarity of what a distribution is.
+- Now we are going to do some modeling.
 
 ## Big Models beget Small Data 
 - what do I already assume/know? (prior)
@@ -106,7 +158,7 @@ hist(rbinom(1000,100,.51))
 
 ## Pooling integration
 
-## Mechanics of sampling
+
 
 
 
