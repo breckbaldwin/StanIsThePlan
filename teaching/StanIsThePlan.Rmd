@@ -55,9 +55,9 @@ Sort of Vision Zero project that keeps track of dangerous Zebra crossings via cr
 - High dimensional decisions you cannot obviously know the meaning of .51 
   + No reliable calibration. Classifiers reporting scores of .2 can actually be .9 precise.
 
-## The relevant Stan program
+## zebra.stan
 
-<code>
+```{stan output.var=zebra.stan}
 transformed data {
    int number_of_successful_crossings = 5100;
    int number_of_crossing_attempts =10000;
@@ -69,14 +69,19 @@ model {
   number_of_successful_crossings
 	  ~ binomial(number_of_crossing_attempts,safe_to_pass);
 }
-</code>
+```
 
-`make teaching/simpleZebra` not '
-`make teaching/simpleZebra.stan`
-`teaching/simpleZebra optimize`
-`less output.csv`
-`teaching/metropolis_one_param sample algorithm=fixed_param num_samples=1 num_warmup=0`
-Annoying error: 
+```{r setup, include=TRUE, echo=FALSE}
+library(rstan)
+library("shinystan")
+
+fit <-
+  sampling(zebra.stan)
+
+print(fit)
+
+launch_shinystan(fit)
+```
 
 ## Bayesian Approach
 - Let us look at a posterior for the binomial distribution:

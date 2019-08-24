@@ -22,20 +22,26 @@ Understand the execution environment
 ## Why Bayesian Modeling? 
 
 ![Average Joes](img/airforce-dimensions.png) 
-<ul>
-<li>Lt. Gilbert S. Daniels. Data from 4,063 pilots on 10 dimensions. 
-<li>Average was defined to be the 30% interval around the mean value, e.g.,5'7" to 5'11" height.
-<li>Point estimates from data hide a lot of information. How many pilots were found to be average across all dimensions? 
-<li>The core reason for the problem is that the measures are not correlated enough.
+
+Lt. Gilbert S. Daniels. Data from 4,063 pilots on 10 dimensions. 
+Average was defined to be the 30% interval around the mean value, e.g.,5'7" to 5'11" height.
+Point estimates from data hide a lot of information. How many pilots were found to be average across all dimensions? 
+The core reason for the problem is that the measures are not correlated enough.
+
 <!--<li> How many pilots were average across 3 dimensions? 3.5%-->
 <!--50% <li> Expand average interval to 90%? of pilots fit then.-->
-</ul>
+
 
 ## Point estimates hide information, posteriors are richer information
-<ul>
-<li> Least informative: Mean height 5'9" (69") across 4k pilots
-<li> But lots of ways this could happen: <!--not sure all distros will have +- vals with stated means-->
-</ul>  
+
+ Least informative: Mean height 5'9" (69") across 4k pilots
+ But lots of ways this could happen: <!--not sure all distros will have +- vals with stated means-->
+
+
+
+
+
+  
 ## The uniform distribution
 ```{r}
 hist(runif(1000,60,74))
@@ -50,7 +56,7 @@ mean(rnorm(1000,69,4))
 
 ## Exponential Distribution
 ```{r}
-hist(rexp(1000,1/69))
+hist(rexp(1000,1/69),breaks=100)
 mean(rexp(1000,1/69))
 ```
 
@@ -65,7 +71,7 @@ mean(rexp(1000,1/69))
     <li>exponential is bunny reproduction</li>
   </ul>
   </li>
-  <li>Bayesian modeling focuses on guessing parameters based on data, e.g., what values of the chosen distribution fit the data the best?</li>
+  <li>Bayesian modeling focuses on systeminticlly updating. parameters based on data, e.g., what values of the chosen distribution fit the data the best?</li>
 </ul>
 
 ## Some more distribution things
@@ -86,10 +92,6 @@ mean(rexp(1000,1/69))
 <li>We want to learn the probability of the uniform distribution's possible min and max values with some data</li>
 </ul>
 
-## Configuring distributions
-
-+ Consider the normal
-+ Expose to some data
 
 ## Metropolis-Hastings
 
@@ -149,15 +151,14 @@ We manage to get something reasonable.
 ```{stan output.var=theAnswerTwice.stan}
 
 parameters {
- real<lower=0,upper=100> min_value;//starts life drawn from a uniform dist
-  real<lower=0,upper=100>  max_value;//starts life drawn from a uniform dist
+ real<lower=0,upper=50> min_value;//starts life drawn from a uniform dist
+  real<lower=50,upper=1000>  max_value;//starts life drawn from a uniform dist
 }
 
 model {
   42 ~ uniform(min_value,max_value);
-  42 ~ uniform(min_value,max_value);
-  
-  //target += 2* uniform_lpdf(42|min_value,max_value)
+  //
+  //target +=  uniform_lpdf(42|(min_value,max_value))
 }
 
 ```
@@ -188,7 +189,8 @@ parameters {
 
 model {
   for (i in 1:number_iterations) {
-    42 ~ uniform(min_value,max_value);
+    
+    42+(i*.01) ~ uniform(min_value,max_value);
   }
 }
 
@@ -200,7 +202,7 @@ model {
 library(rstan)
 library("shinystan")
 
-number_iterations = 100;
+number_iterations = 10;
 
 fit <-
   sampling(theAnswerArbitrary.stan,data=c("number_iterations"));
@@ -216,18 +218,24 @@ data {
 }
 
 parameters {
-  real<lower=0,upper=100> min_value;//starts life drawn from a uniform dist
-  real<lower=0,upper=100> max_value;//starts life drawn from a uniform dist
-  real<lower=0,upper=100> alpha_mean;
-  real<lower=0,upper=100> sigma_standard_deviation;
-  real<lower=0,upper=10> lambda_exp_shape_param;
+  real<lower=0,upper=100> min_value_uniform;//starts life drawn from a uniform dist
+  real<lower=0,upper=100> max_value_uniform;//starts life drawn from a uniform dist
+  real<lower=0,upper=100> alpha_mean_normal;
+  real<lower=0,upper=2> sigma_standard_deviation_normal;
+  real<lower=0,upper=10> lambda_exp_shape_param_exponential;
 }
 
+
+
 model {
+  sigma_standard_deviation_normal ~ normal(0,1);
   for (i in 1:number_iterations) {
-    42 ~ uniform(min_value,max_value);
-    42 ~ normal(alpha_mean,sigma_standard_deviation);
-    42 ~ exponential(lambda_exp_shape_param);
+    42 ~ uniform(min_value_uniform,max_value_uniform);
+    42+(i*.01)~ uniform(min_value_uniform,max_value_uniform);
+    42 ~ normal(alpha_mean_normal,sigma_standard_deviation_normal);
+    42+(i*.01)~ normal(alpha_mean_normal,sigma_standard_deviation_normal);
+    42 ~ exponential(lambda_exp_shape_param_exponential);
+    42+(i*.01)~ exponential(lambda_exp_shape_param_exponential);
   }
 }
 
@@ -237,7 +245,8 @@ model {
 library(rstan)
 library("shinystan")
 
-number_iterations = 10;
+number_iterations = 2; #0,1,100
+
 
 fit <-
   sampling(manyDistributions.stan,data=c("number_iterations"));

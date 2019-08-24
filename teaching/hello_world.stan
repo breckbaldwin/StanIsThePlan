@@ -22,7 +22,7 @@ parameters {
 
 transformed parameters { 
   print("hellow from transformed paramters");
- 
+  
 } 
 
 model { 
