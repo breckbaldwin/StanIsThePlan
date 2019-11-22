@@ -1,0 +1,2 @@
+got basic HMM working
+./HmmSimple sample data file=pos_data.Rdata

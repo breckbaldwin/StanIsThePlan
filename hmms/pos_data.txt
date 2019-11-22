@@ -1,0 +1,14 @@
+<output>
+<s i="0">
+<token pos="at">the</token>
+<token pos="nn">rain</token>
+<token pos="in">on</token>
+<token pos="np">Spain</token>
+<token pos="vbz">falls</token>
+<token pos="rb">mainly</token>
+<token pos="in">on</token>
+<token pos="at">the</token>
+<token pos="jj">rain</token>
+<token pos=".">.</token>
+</s>
+</output>
