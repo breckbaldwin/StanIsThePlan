@@ -1,0 +1,7 @@
+All coins maybe unfiar due to surface shape of heads vs tails.
+
+The interesting experiment is how much power do you need to conclude I am right? A null hyp test may take too long. A parameter probab approach may take much less data, e.g. p(coin is fair) vs p(coin is very slightly unfair)
+
+What is the name of relative prob style approach?
+
+
