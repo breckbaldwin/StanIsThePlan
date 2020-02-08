@@ -35,13 +35,7 @@ The core reason for the problem is that the measures are not correlated enough.
 ## Point estimates hide information, posteriors are richer information
 
  Least informative: Mean height 5'9" (69") across 4k pilots
- But lots of ways this could happen: <!--not sure all distros will have +- vals with stated means-->
-
-
-
-
-
-  
+ But lots of ways this could happen
 ## The uniform distribution
 ```{r}
 hist(runif(1000,60,74))
@@ -68,10 +62,10 @@ mean(rexp(1000,1/69))
   <ul>
     <li>uniform ex</li>
     <li>height is additive, normal</li>
-    <li>exponential is bunny reproduction</li>
+    <li>exponential is ?</li>
   </ul>
   </li>
-  <li>Bayesian modeling focuses on systeminticlly updating. parameters based on data, e.g., what values of the chosen distribution fit the data the best?</li>
+  <li>Bayesian modeling focuses on systematiclly updating parameters based on data, e.g., what values of the chosen distribution fit the data the best?</li>
 </ul>
 
 ## Some more distribution things
@@ -95,60 +89,13 @@ mean(rexp(1000,1/69))
 
 ## Metropolis-Hastings
 
+See 
+  stan/metropolis_zebra.stan
+  stan/metropolis_one_param.stan
+  stan/metropolis_two_param.stan
 
 
-```{r}
-samples = array(500) #numeric(500) # 500 samples.
-samples[1]=110 # The initial guess
-
-data = 42;
-
-for (i in 2:500)
-{
-  target = 0.0
-  proposal = samples[i-1] + rnorm (n=1, mean=0, sd=5) # Proposal value from prev value
-  threshold = runif (n=1,min=0,max=1)
-  
-  if (dnorm (proposal, mean=data, 15) / dnorm (x=samples[i-1], mean=data, sd=15) > threshold)
-    samples[i] = proposal # Accept proposal
-  else (samples[i] = samples[i-1]) # Reject proposal
-}
-
-hist(samples)
-```
-
-
-```{r}
-samples = array(500) #numeric(500) # 500 samples.
-samples[1]=110 # The initial guess
-
-samples2 = array(500) #numeric(500) # 500 samples.
-samples2[1]=110 # The initial guess
-
-data = c(42,42);
-
-for (i in 2:500)
-{
-  target = 0.0
-  proposal = samples[i-1] + rnorm (n=1, mean=0, sd=5) # Proposal value from prev value
-  threshold = runif (n=1,min=0,max=1) 
-  threshold2 = runif (n=1,min=0,max=1) 
-  if (dnorm (proposal, mean=data, 15) / dnorm (x=samples[i-1], mean=data, sd=15) > threshold)
-    samples[i] = proposal # Accept proposal
-  else (samples[i] = samples[i-1]) # Reject proposal
-}
-
-hist(samples)
-```
-
-## Our First Stan Program
-
-
-
-We manage to get something reasonable. 
-
-
-```{stan output.var=theAnswerTwice.stan}
+```{stan output.var=theAnswer.stan}
 
 parameters {
  real<lower=0,upper=50> min_value;//starts life drawn from a uniform dist
@@ -170,7 +117,7 @@ library("shinystan")
 
 
 fit <-
-  sampling(theAnswerTwice.stan)
+  sampling(theAnswer.stan)
 
 print(fit)
 ```
@@ -202,7 +149,7 @@ model {
 library(rstan)
 library("shinystan")
 
-number_iterations = 10;
+number_iterations = 10; #try 0,1,10,100
 
 fit <-
   sampling(theAnswerArbitrary.stan,data=c("number_iterations"));
@@ -323,8 +270,3 @@ fit <-
 
 ```
 
-# Varied scales in paramaters being estimated
-
-# A/B testing
-
-# Bayesian workflow

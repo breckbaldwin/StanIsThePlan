@@ -10,12 +10,12 @@ functions {
 }
 
 data {
-  int how_much_evidence;
-  
+    int how_much_evidence;
 }
 
 
 transformed data {
+   
    int number_of_successful_crossings = 10;
    int number_of_crossing_attempts =10;
    int unique_signs = 1;

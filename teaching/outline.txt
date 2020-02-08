@@ -2,6 +2,8 @@ Joke: I can model and drink beer, I cannot program and drink beer. Modeling is l
 
 Joke: Circle line. 
 
+Deep learning comparision: Deep learning works by training a model and deciding if it did anything useful by evaluating on held out data/xval. Bayesian modeling works by creating and validating a model (with or without looking at data) and once the model is acceptable you accept the reality of what you learn with data. It may not be useful but it is correct. It is "throw spagetti against the wall and see what sticks approach vs eat the spagetti you cooked no matter what". Tyranicaly Toddler vs Adult. Example is to model a coin, bias the data a bit and see the differences in 
+
 - Assume that some people learn best by doing and watching things run. 
 Who this class is for:
 
