@@ -63,8 +63,6 @@ def dptable(V):
         yield "%.7s: " % state + " ".join("%.7s" % ("%f" % v[state]["prob"]) for v in V)
 
 
-
-
 fileName = sys.argv[1]
 
 with open(fileName) as f:

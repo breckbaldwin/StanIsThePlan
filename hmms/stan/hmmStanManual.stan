@@ -21,7 +21,7 @@ model {
 
   for (t in 1:data_count) {
     words[t] ~ categorical(emit_p[categories[t]]);
-    print("wordsord=",words[t],",  categorical over emit probs: ",emit_p[categories[t]]);
+    print("words=",words[t],",  categorical over emit probs: ",emit_p[categories[t]]);
   }
 
   for (t in 2:data_count) {

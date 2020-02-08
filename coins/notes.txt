@@ -4,4 +4,8 @@ The interesting experiment is how much power do you need to conclude I am right?
 
 What is the name of relative prob style approach?
 
+I want to conclude with 95% confidence that my coin is 51% tails biased.
+
+Null Hyp is 50% tails biased.
+
 
